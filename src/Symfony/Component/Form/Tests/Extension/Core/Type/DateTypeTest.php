@@ -134,6 +134,26 @@ class DateTypeTest extends TypeTestCase
         $this->assertEquals('02.06.2010', $form->getViewData());
     }
 
+    public function testSubmitFromSingleTextWithPad()
+    {
+        $form = $this->factory->create('date', null, array(
+            'model_timezone' => 'UTC',
+            'view_timezone' => 'UTC',
+            'widget' => 'single_text',
+            'pad'    => true,
+        ));
+
+        $text = "2010-6-2";
+        $paddedText = "2010-06-02";
+
+        $form->submit($text);
+
+        $dateTime = new \DateTime('2010-06-02 UTC');
+
+        $this->assertDateTimeEquals($dateTime, $form->getData());
+        $this->assertEquals($paddedText, $form->getViewData());
+    }
+
     public function testSubmitFromText()
     {
         $form = $this->factory->create('date', null, array(
@@ -145,6 +165,29 @@ class DateTypeTest extends TypeTestCase
         $text = array(
             'day' => '2',
             'month' => '6',
+            'year' => '2010',
+        );
+
+        $form->submit($text);
+
+        $dateTime = new \DateTime('2010-06-02 UTC');
+
+        $this->assertDateTimeEquals($dateTime, $form->getData());
+        $this->assertEquals($text, $form->getViewData());
+    }
+    
+    public function testSubmitFromTextWithPad()
+    {
+        $form = $this->factory->create('date', null, array(
+            'model_timezone' => 'UTC',
+            'view_timezone' => 'UTC',
+            'widget' => 'text',
+            'pad'    => true,
+        ));
+
+        $text = array(
+            'day' => '02',
+            'month' => '06',
             'year' => '2010',
         );
 
@@ -196,6 +239,29 @@ class DateTypeTest extends TypeTestCase
         $form->submit($text);
 
         $this->assertNull($form->getData());
+        $this->assertEquals($text, $form->getViewData());
+    }
+
+    public function testSubmitFromChoiceWithPad()
+    {
+        $form = $this->factory->create('date', null, array(
+            'model_timezone' => 'UTC',
+            'view_timezone' => 'UTC',
+            'widget' => 'choice',
+            'pad' => true,
+        ));
+
+        $text = array(
+            'day' => '2',
+            'month' => '6',
+            'year' => '2010',
+        );
+
+        $form->submit($text);
+
+        $dateTime = new \DateTime('2010-06-02 UTC');
+
+        $this->assertDateTimeEquals($dateTime, $form->getData());
         $this->assertEquals($text, $form->getViewData());
     }
 

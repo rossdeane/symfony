@@ -30,6 +30,8 @@ class DateType extends AbstractType
 
     const HTML5_FORMAT = 'yyyy-MM-dd';
 
+    const UNPADDED_FORMAT = 'yyyy-M-d';
+
     private static $acceptedFormats = array(
         \IntlDateFormatter::FULL,
         \IntlDateFormatter::LONG,
@@ -105,7 +107,7 @@ class DateType extends AbstractType
                 ->add('month', $options['widget'], $monthOptions)
                 ->add('day', $options['widget'], $dayOptions)
                 ->addViewTransformer(new DateTimeToArrayTransformer(
-                    $options['model_timezone'], $options['view_timezone'], array('year', 'month', 'day')
+                    $options['model_timezone'], $options['view_timezone'], array('year', 'month', 'day'), $options['pad']
                 ))
                 ->setAttribute('formatter', $formatter)
             ;
@@ -179,6 +181,10 @@ class DateType extends AbstractType
             return $options['empty_value'];
         };
 
+        $pad = function (Options $options) {
+            return $options['widget'] == 'single_text';
+        };
+
         $placeholderNormalizer = function (Options $options, $placeholder) use ($placeholderDefault) {
             if (is_array($placeholder)) {
                 $default = $placeholderDefault($options);
@@ -197,7 +203,10 @@ class DateType extends AbstractType
         };
 
         $format = function (Options $options) {
-            return $options['widget'] === 'single_text' ? DateType::HTML5_FORMAT : DateType::DEFAULT_FORMAT;
+            if($options['widget'] === 'single_text'){
+                return $options['pad'] ? DateType::HTML5_FORMAT : DateType::UNPADDED_FORMAT;
+            }
+            return DateType::DEFAULT_FORMAT;
         };
 
         $resolver->setDefaults(array(
@@ -222,6 +231,7 @@ class DateType extends AbstractType
             // this option.
             'data_class'     => null,
             'compound'       => $compound,
+            'pad'            => $pad,
         ));
 
         $resolver->setNormalizers(array(
